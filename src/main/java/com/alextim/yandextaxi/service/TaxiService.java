@@ -7,7 +7,7 @@ import com.alextim.yandextaxi.model.Price;
 import com.alextim.yandextaxi.properties.YandexProperty;
 import com.alextim.yandextaxi.repository.PriceRepository;
 import io.micrometer.core.instrument.MeterRegistry;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,12 +16,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
+@Slf4j
 public class TaxiService {
 
     private final YandexProperty yandexProperty;
     private final TaxiApiClient taxiApiClient;
     private final PriceRepository priceRepository;
-    private AtomicInteger price;
+    private AtomicInteger mectricValue;
 
     public TaxiService(YandexProperty yandexProperty,
                        TaxiApiClient taxiApiClient,
@@ -31,8 +32,8 @@ public class TaxiService {
         this.taxiApiClient = taxiApiClient;
         this.priceRepository = priceRepository;
 
-        price = new AtomicInteger();
-        meterRegistry.gauge("price", price);
+        mectricValue = new AtomicInteger();
+        meterRegistry.gauge("priceTaxi", mectricValue);
     }
 
     public MomentPrice getPrice(Coordinate startPoint, Coordinate finishPoint) {
@@ -41,19 +42,23 @@ public class TaxiService {
                 yandexProperty.getApiKey(),
                 startPoint + "~" + finishPoint);
 
+        log.info("Current price: {}", curPrice);
+
         if (curPrice.getOptions().isEmpty())
             throw new RuntimeException("Options are empty");
 
         double price = curPrice.getOptions().get(0).getPrice();
-        this.price.set((int) price);
+        log.info("price: {}", price);
+
+        mectricValue.set((int) price);
 
         return new MomentPrice(
                 LocalDateTime.now(ZoneId.of("Europe/Moscow")),
                 price);
     }
 
-    public void savePrice(MomentPrice momentPrice) {
-        priceRepository.save(momentPrice);
+    public MomentPrice savePrice(MomentPrice momentPrice) {
+        return priceRepository.save(momentPrice);
     }
 
     public List<MomentPrice> getAllPrices() {

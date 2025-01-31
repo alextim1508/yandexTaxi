@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "coordinate")
 public class CoordinateProperty {
-    private Double startLatitude;
+    private double startLatitude;
     private Double startLongitude;
     private Double finishLatitude;
     private Double finishLongitude;

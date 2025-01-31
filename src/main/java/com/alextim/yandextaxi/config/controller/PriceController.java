@@ -1,4 +1,4 @@
-package com.alextim.yandextaxi.controller;
+package com.alextim.yandextaxi.config.controller;
 
 import com.alextim.yandextaxi.model.MomentPrice;
 import com.alextim.yandextaxi.service.TaxiService;

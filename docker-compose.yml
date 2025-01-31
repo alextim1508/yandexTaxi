@@ -1,38 +1,49 @@
 version: '3.7'
 
 services:
-  postgres:
+  db:
     image: postgres:13.3
+    container_name: db
     ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: kegisa
-      POSTGRES_PASSWORD: pgpass
-      POSTGRES_DB: taxi
+      - 5433:5432
+    env_file:
+      - ./secrets/db-production.env
+    volumes:
+      - db-data:/val/lib/postgresql/data
 
-  scheduler:
-    image: taxi-scheduler:latest
+  app:
+    image: openjdk:21-jdk
+    container_name: app
+    working_dir: /data
     ports:
       - 8080:8080
-    environment:
-      - YANDEX_CLID=id
-      - YANDEX_APIKEY=key
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/yandextaxi
-      - SPRING_DATASOURCE_USERNAME=alex
-      - SPRING_DATASOURCE_PASSWORD=pass
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+    volumes:
+      - ./target/yandexTaxi-0.0.1-SNAPSHOT.jar:/data/app.jar
+    command: [ "java", "-jar", "./app.jar" ]
+    restart: always
+    env_file:
+      - ./secrets/app-production.env
 
   prometheus:
     image: prom/prometheus
+    container_name: prometheus
     ports:
       - 9090:9090
     volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./infra/prometheus/:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
 
   grafana:
     image: grafana/grafana
+    container_name: grafana
     ports:
       - 3000:3000
+    volumes:
+      - ./infra/grafana/:/etc/grafana/provisioning/
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+
+volumes:
+  db-data:
