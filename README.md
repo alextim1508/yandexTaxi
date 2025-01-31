@@ -24,7 +24,7 @@ docker-compose -f docker-compose.yml up
 
 Проверить работу приложения GET запросом к end point /prices  c  помощью встроенного в intellij idea http клиента и файла prices.http
 
-![](screenshots/get prices http request.jpg)
+![](screenshots/get_prices_http_request.jpg)
 
 Список метрик доступен по http://localhost:8080/actuator/prometheus
 
@@ -34,14 +34,14 @@ docker-compose -f docker-compose.yml up
 
 Открыть grafana по адресу http://localhost:3000/ (логин/пароль: admin) и открыть список доступных дашбордов.
 
-![](screenshots/grafana dashboardss.jpg)
+![](screenshots/grafana_dashboardss.jpg)
 
 
 **Saturation golden signal**
 
 Показывает на сколько загружена система, мониторинг доступен по дашборду **JVM (Micrometer)**
 
-![](screenshots/cpu and memory.jpg)
+![](screenshots/cpu_and_memory.jpg)
 
 
 **Latency, Traffic, Errors golden signals**
@@ -56,7 +56,7 @@ Errors показывает сколько запросов завершаетс
 
 **Requests per second**
 
-![](screenshots/requests per second.jpg)
+![](screenshots/requests_per_second.jpg)
 
 ```bash
 rate(http_server_requests_seconds_count{application="$application", instance="$instance", uri!~".*actuator.*"}[1m])
@@ -64,21 +64,23 @@ rate(http_server_requests_seconds_count{application="$application", instance="$i
 
 **Mean response time**
 
-![](screenshots/mean response time.jpg)
+![](screenshots/mean_response_time.jpg)
 
 ```bash
 rate(http_server_requests_seconds_sum{application="$application", instance="$instance", uri!~".*actuator.*"}[1m])/rate(http_server_requests_seconds_count{application="$application", instance="$instance", uri!~".*actuator.*"}[1m])
 ```
 
 Response time of 50%, 75%, 90%, 95% of requests
-![](screenshots/response time of 50%, 75%, 90%, 95% of requests.jpg)
+
+![](screenshots/response_time.jpg)
+
 ```bash
 histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application="$application", instance="$instance", uri!~".*actuator.*"}[1m])) by (le))
 ```
 
 Top 10 APIs
 
-![](screenshots/top 10 apis.jpg)
+![](screenshots/top_10_apis.jpg)
 
 ```bash
 topk(10, sum by(uri, method) (rate(http_server_requests_seconds_count{application="$application",  uri!~".*actuator.*"}[1m])))
@@ -92,11 +94,11 @@ Errors
 
 Пользовательские метрики. Мониторинг доступен по дашборду **yandex prices dashboard**
 
-![](screenshots/yandex prices all.jpg)
+![](screenshots/yandex_prices_all.jpg)
 
 Цена поездки яндекс такси
 
-![](screenshots/yandex prices.jpg)
+![](screenshots/yandex_prices.jpg)
 
 ```bash
 priceTaxi
@@ -104,7 +106,7 @@ priceTaxi
 
 Максимальное время выполнение планировщика 
 
-![](screenshots/scheduler time.jpg)
+![](screenshots/scheduler_time.jpg)
 
 ```bash
 schedulerTaxi_seconds_max
